@@ -1,5 +1,6 @@
 from locust import HttpUser, task
 from common.utils import LOGIN_INFO
+import random
 
 class UserBehavior(HttpUser):
     def on_start(self):
@@ -13,7 +14,18 @@ class UserBehavior(HttpUser):
     def getAllCategories(self):
         headers = {'Authorization': f'Bearer {self.accessToken}'}
 
-        self.client.get(
+        response = self.client.get(
             '/api/categories',
+            headers=headers
+        )
+
+        self.category_id = random.choice(response.json()['categories'])['_id']
+
+    @task
+    def getCategoryWithId(self):
+        headers = {'Authorization': f'Bearer {self.accessToken}'}
+
+        self.client.get(
+            f'/api/categories/{self.category_id}',
             headers=headers
         )

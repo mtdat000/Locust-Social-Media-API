@@ -35,7 +35,7 @@ class AdminBehaviour(HttpUser):
             '/api/categories',
             {
                 'name': 'Locust Test Category ' + salt(),
-                'categoryUrl': ('tester_img.jpg', open('../files/tester_img.jpg', 'rb'), 'image/jpeg')
+                'categoryUrl': ('tester_img.jpg', open('files/tester_img.jpg', 'rb'), 'image/jpeg')
             },
             headers=headers
         )
