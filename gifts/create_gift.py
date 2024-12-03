@@ -29,7 +29,7 @@ class AdminBehaviour(HttpUser):
         response = self.client.post(
             '/api/gifts/',
             {
-                'name': 'Locust Test Category ' + salt(),
+                'name': 'Locust Test Gift ' + salt(),
                 'valuePerUnit': 69
             },
             files={

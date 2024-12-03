@@ -10,7 +10,7 @@ class UserBehavior(HttpUser):
         self.accessToken = response.json().get('accessToken')
 
     @task
-    def getAllCategories(self):
+    def getAllGifts(self):
         headers = {'Authorization': f'Bearer {self.accessToken}'}
 
         self.client.get(

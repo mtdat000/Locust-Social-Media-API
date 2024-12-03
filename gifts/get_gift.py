@@ -14,21 +14,21 @@ class UserBehavior(HttpUser):
             self.accessToken = response.json().get('accessToken')
 
         @task
-        def getAllCategories(self):
+        def getAllGifts(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
             response = self.client.get(
                 '/api/gifts/',
                 headers=headers
             )
-            self.category_id = random.choice(response.json()['gifts'])['_id']
+            self.gift_id = random.choice(response.json()['gifts'])['_id']
 
         @task
-        def getCategoryWithId(self):
+        def getGiftWithId(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
             self.client.get(
-                f'/api/gifts/{self.category_id}',
+                f'/api/gifts/{self.gift_id}',
                 headers=headers,
                 name='/gifts'
             )
