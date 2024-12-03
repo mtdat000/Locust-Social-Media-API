@@ -14,6 +14,6 @@ class UserBehavior(HttpUser):
         headers = {'Authorization': f'Bearer {self.accessToken}'}
 
         self.client.get(
-            '/api/categories',
+            '/api/gifts/',
             headers=headers
         )

@@ -1,24 +1,5 @@
-from locust import HttpUser, TaskSet, task, constant
-import random
-import string
-
-LOGIN_INFO = {
-    'admin': {
-      "email": "admin@gmail.com",
-      "password": "Admin12345678#"
-    },
-    'bao': {
-      "email": "n.bao25702@gmail.com",
-      "password": "P@ssword1"
-    },
-    'khang': {
-      "email": "khangtuhuu@gmail.com",
-      "password": "Aa123456789!"
-    }
-}
-
-def salt(size=15, chars=string.ascii_lowercase + string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
+from locust import HttpUser, TaskSet, task
+from common.utils import salt, LOGIN_INFO
 
 create_category_id = []
 
@@ -44,7 +25,7 @@ class AdminBehaviour(HttpUser):
                 f'/api/categories/{id}',
                 headers=headers
             )
-            print('Delete', id)
+            print(len(create_category_id))
 
     @task
     def createCategories(self):
@@ -54,7 +35,7 @@ class AdminBehaviour(HttpUser):
             '/api/categories',
             {
                 'name': 'Locust Test Category ' + salt(),
-                'categoryUrl': ('tester_img.jpg', open('../files/tester_img.jpg', 'rb'), 'image/jpeg')
+                'categoryUrl': ('tester_img.jpg', open('files/tester_img.jpg', 'rb'), 'image/jpeg')
             },
             headers=headers
         )
