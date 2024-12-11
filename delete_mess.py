@@ -56,7 +56,6 @@ class AdminBehaviour(HttpUser):
                 headers=headers
             )
 
-            # Look up the list of category but only update categories that pre-created
             removed_mess = random.choice(create_mess)
             self.data_id = removed_mess['_id']
             create_mess.remove(removed_mess)
