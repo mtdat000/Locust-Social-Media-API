@@ -19,30 +19,40 @@ class AdminBehaviour(HttpUser):
         accessToken = response.json().get('accessToken')
         headers = {'Authorization': f'Bearer {accessToken}'}
 
-        while create_memberpack_id:
-            id = create_memberpack_id.pop()
+        print(len(create_memberpack_id))
+
+        for id in create_memberpack_id:
             self.client.delete(
                 f'/api/member-pack/{id}',
                 headers=headers
             )
-            print(len(create_memberpack_id))
+            print(id)
+        # while create_memberpack_id:
+        #     id = create_memberpack_id.pop()
+        #     self.client.delete(
+        #         f'/api/member-pack/{id}',
+        #         headers=headers
+        #     )
+        #     print(len(create_memberpack_id))
     
     @task
     def createMemberpack(self):
-        headers = {'Authorization': f'Bearer {self.accessToken}'}
+        headers = {
+            'Authorization': f'Bearer {self.accessToken}',
+            'content-type': 'application/json'
+            }
 
         params= {
-                'name': 'Locust Test Memberpack ' + salt(),
-                'description': 'Memberpack descripttion'+ salt(),
-                'price': randomNumber(),
-                'durationUnit': randomDateUnit,
-                'durationNumber': randomNumber()
+            "name": "Locust Test Memberpack " + salt(),
+            "description": "Memberpack descripttion "+ salt(),
+            "price": randomNumber(),
+            "durationUnit": randomDateUnit(),
+            "durationNumber": randomNumber()
             }
-        # print(type(params['price']), params['price'])
 
         response = self.client.post(
             '/api/member-pack/',
-            params,
+            json=params,
             headers=headers
         )
         print(response.json())

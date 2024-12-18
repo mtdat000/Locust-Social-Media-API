@@ -23,4 +23,4 @@ def randomNumber():
     return random.randrange(1, 51)
 
 def randomDateUnit():
-    return random.choice(['DAY', 'MONTH', 'YEAR'])
+    return random.choice(["DAY", "MONTH", "YEAR"])
