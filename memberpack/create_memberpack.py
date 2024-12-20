@@ -1,9 +1,10 @@
 from locust import HttpUser, TaskSet, task
 from common.utils import salt, LOGIN_INFO, randomNumber, randomDateUnit
 
-create_memberpack_id = []
-
 class AdminBehaviour(HttpUser):
+
+    create_memberpack_id = []
+
     def on_start(self):
         response = self.client.post(
             "/api/auth/login", 
@@ -19,9 +20,9 @@ class AdminBehaviour(HttpUser):
         accessToken = response.json().get('accessToken')
         headers = {'Authorization': f'Bearer {accessToken}'}
 
-        print(len(create_memberpack_id))
+        print(len(self.create_memberpack_id))
 
-        for id in create_memberpack_id:
+        for id in self.create_memberpack_id:
             self.client.delete(
                 f'/api/member-pack/{id}',
                 headers=headers
@@ -56,4 +57,4 @@ class AdminBehaviour(HttpUser):
             headers=headers
         )
         print(response.json())
-        create_memberpack_id.append(response.json()['memberPack']['_id'])
+        self.create_memberpack_id.append(response.json()['memberPack']['_id'])
