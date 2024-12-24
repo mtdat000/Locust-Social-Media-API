@@ -68,11 +68,11 @@ class AdminBehaviour(HttpUser):
             self.client.put(
                 f'/api/gifts/{self.gift_id}',
                 {
-                'name': 'Locust Test Gift ' + salt(),
-                'valuePerUnit': 69
+                    'name': 'Locust Test Updated Gift ' + salt(),
+                    'valuePerUnit': 69
                 },
                 files={
-                    'giftCreateImg': ('tester_img.jpg', open('files/tester_img.jpg', 'rb'), 'image/jpeg'),
+                    'giftUpdateImg': ('tester_img.jpg', open('files/tester_img.jpg', 'rb'), 'image/jpeg'),
                 },
                 name='/updated_gifts',
                 headers=headers
