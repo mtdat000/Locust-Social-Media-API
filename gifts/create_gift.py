@@ -23,7 +23,7 @@ class AdminBehaviour(HttpUser):
             print(len(create_gift_id))
 
     @task
-    def createCategories(self):
+    def createGifts(self):
         headers = {'Authorization': f'Bearer {self.accessToken}'}
 
         response = self.client.post(

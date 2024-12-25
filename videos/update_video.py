@@ -10,14 +10,7 @@ class UserBehavior(HttpUser):
         )
         accessToken = response.json().get('accessToken')
         headers = {'Authorization': f'Bearer {accessToken}'}
-
-        self.client.delete(
-            f'/api/videos/user/watch-history',
-            headers=headers
-        )
-
-        print('DONE')
-
+        
     @task
     class Flow(SequentialTaskSet):
         @task
@@ -40,13 +33,21 @@ class UserBehavior(HttpUser):
             self.video_id = random.choice(response.json()['videos'])['_id']
 
         @task
-        def createWatchHistory(self):
+        def updateVideo(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
-            self.client.post(
-                '/api/videos/user/watch-history',
+            locust_identifier = 'Locust Update Test Video' + salt
+
+            self.client.patch(
+                f'/api/videos/{self.video_id}',
                 {
-                    'videoId': self.video_id
+                    'title': locust_identifier,
+                    'description': locust_identifier,
+                    'categoryIds': [
+
+                    ],
+                    'enumMode': 'public',
+                    'videoThumbnail': None
                 },
                 headers=headers
             )

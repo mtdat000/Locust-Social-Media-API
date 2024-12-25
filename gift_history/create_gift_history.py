@@ -27,22 +27,24 @@ class UserBehavior(HttpUser):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
             response = self.client.get(
-                f"/api/users/{id}",
+                f"/api/users/{self.userId}",
+                name='get-user',
                 headers=headers
             )
 
-            self.user = response.json()['user']
+            self.userInfo = response.json()['user']
 
         def supplyCoin(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
             self.client.put(
-                "/api/users/{self.user['_id']}/wallet",
+                f"/api/users/{self.userInfo['_id']}/wallet",
                 {
                     'amount': self.gift['valuePerUnit'],
                     'actionCurrencyType': 'ReceiveCoin',
                     'exchangeRate': 0
                 },
+                name='supply-coin',
                 headers=headers
             )
 
@@ -65,7 +67,7 @@ class UserBehavior(HttpUser):
                 headers=headers
             )
 
-            self.stream = random.choice(response.json()['streams'])['_id']
+            self.stream = random.choice(response.json()['streams'])
 
         @task
         def getAllGift(self):
@@ -76,26 +78,27 @@ class UserBehavior(HttpUser):
                 headers=headers
             )
 
-            self.gift = random.choice(response.json()['gifts'])['_id']
+            self.gift = random.choice(response.json()['gifts'])
 
         @task
         def createGiftHistory(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
-            if(self.user['wallet']['coin'] < self.gift['valuePerUnit']):
+            if(self.userInfo['wallet']['coin'] < self.gift['valuePerUnit']):
                 self.supplyCoin()
 
             response = self.client.post(
                 '/api/gift-history/',
-                {
-                    'streamId': self.stream['_id'],
-                    'gifts': [
+                json={
+                    "streamId": self.stream['_id'],
+                    "gifts": [
                         {
-                            'giftId': self.gift['_id'],
-                            'quantity': 1
+                            "giftId": self.gift['_id'],
+                            "quantity": 1
                         }
                     ]
                 },
                 headers=headers
             )
+
             create_gift_history_id.append(response.json()['giftHistory']['_id'])
