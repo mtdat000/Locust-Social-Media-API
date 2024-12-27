@@ -38,8 +38,8 @@ class UserBehavior(HttpUser):
             response = self.client.post(
                 '/api/videos/',
                 files={
-                'videovideo': ('tester_img.jpg', open('files/tester_video.mp4', 'rb'), 'video/mp4'),
+                    'video': ('tester_video.mp4', open('files/tester_video.mp4', 'rb'), 'video/mp4')
                 },
                 headers=headers
             )
-            create_video_id.append(response.json()['videovideo']['_id'])
+            create_video_id.append(response.json()['video']['_id'])

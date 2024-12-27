@@ -2,6 +2,8 @@ from locust import HttpUser, TaskSet, SequentialTaskSet, task
 from common.utils import salt, LOGIN_INFO
 import random
 
+create_video = []
+
 class UserBehavior(HttpUser):
     @task
     class Flow(SequentialTaskSet):
@@ -12,24 +14,17 @@ class UserBehavior(HttpUser):
                 LOGIN_INFO['bao']
             )
             self.accessToken = response.json().get('accessToken')
-
+            self.userId = response.json().get('userId')
+          
         @task
-        def getAllVideo(self):
+        def updateWatchTime(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
-            response = self.client.get(
-                '/api/videos/',
+            self.client.put(
+                f'/api/videos/user/watch-time',
+                {
+                    'userId': self.userId,
+                    'watchTime': random.randint(60, 999)
+                },
                 headers=headers
-            )
-
-            self.video_id = random.choice(response.json()['videos'])['_id']
-
-        @task
-        def increaseVideoView(self):
-            headers = {'Authorization': f'Bearer {self.accessToken}'}
-
-            self.client.post(
-                f'/api/videos/{self.video_id}/view',
-                headers=headers,
-                name='/increase-view'
             )

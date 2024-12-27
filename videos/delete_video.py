@@ -61,26 +61,30 @@ class UserBehavior(HttpUser):
                 '/api/videos/',
                 headers=headers
             )
-
-            self.video_id = random.choice(create_video)['_id']
+            
+            removed_video = random.choice(create_video)
+            self.video_id = removed_video['_id']
+            create_video.remove(removed_video)
 
         @task
-        def updateVideo(self):
+        def deleteVideo(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
-            locust_identifier = 'Locust Update Test Video ' + salt()
-
-            self.client.patch(
+            self.client.delete(
                 f'/api/videos/{self.video_id}',
-                {
-                    'title': locust_identifier,
-                    'description': locust_identifier,
-                    'categoryIds': [
-                        '673422fc818ae4a0ad74b229'
-                    ],
-                    'enumMode': 'public',
-                    'videoThumbnail': None
-                },
                 headers=headers,
-                name='/updated-videos'
+                name='/deleted-videos'
             )
+
+        @task
+        def createVideo(self):
+            headers = {'Authorization': f'Bearer {self.accessToken}'}
+
+            response = self.client.post(
+                '/api/videos/',
+                files={
+                    'video': ('tester_video.mp4', open('files/tester_video.mp4', 'rb'), 'video/mp4')
+                },
+                headers=headers
+            )
+            create_video.append(response.json()['video'])
