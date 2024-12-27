@@ -89,11 +89,13 @@ class UserBehavior(HttpUser):
         def deleteWatchHistory(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
-            self.client.delete(
+            response = self.client.delete(
                 f'/api/videos/user/watch-history/{self.watch_history_id}',
                 headers=headers,
                 name='/deleted-watch-history'
             )
+
+            print(response.json())
 
         @task
         def createWatchHistory(self):

@@ -19,14 +19,13 @@ class UserBehavior(HttpUser):
 
             response = self.client.get(
                 '/api/videos/',
+                params={
+                    'enumMode': 'public'
+                },
                 headers=headers
             )
-
-            check_video = random.choice(response.json()['videos'])
-            while check_video['enumMode'] != 'public':
-                check_video = random.choice(response.json()['videos'])
-
-            self.video_id = check_video
+            
+            self.video_id = random.choice(response.json()['videos'])['_id']
 
         @task
         def getVideo(self):
