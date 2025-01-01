@@ -23,6 +23,17 @@ class UserBehavior(HttpUser):
 
     @task
     class Flow(SequentialTaskSet):
+        def clear(self):
+            headers = {'Authorization': f'Bearer {self.accessToken}'}
+
+            while create_video_id:
+                id = create_video_id.pop()
+                self.client.delete(
+                    f'/api/videos/{id}',
+                    headers=headers,
+                    name='/cleanup'
+                )
+
         @task
         def login(self):
             response = self.client.post(
@@ -43,3 +54,5 @@ class UserBehavior(HttpUser):
                 headers=headers
             )
             create_video_id.append(response.json()['video']['_id'])
+
+            self.clear()

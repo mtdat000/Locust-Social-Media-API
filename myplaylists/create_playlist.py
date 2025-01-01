@@ -16,12 +16,24 @@ class AdminBehaviour(HttpUser):
             id = create_playlist_id.pop()
             self.client.delete(
                 f'/api/my-playlists/{id}',
-                headers=headers
+                headers=headers,
+                name='/cleanup'
             )
             print(len(create_playlist_id))
 
     @task
     class Flow(SequentialTaskSet):
+        def clear(self): 
+            headers = {'Authorization': f'Bearer {self.accessToken}'}
+
+            while create_playlist_id:
+                id = create_playlist_id.pop()
+                self.client.delete(
+                    f'/api/my-playlists/{id}',
+                    headers=headers,
+                    name='/cleanup'
+                )
+
         @task
         def login(self):
             response = self.client.post(
@@ -47,3 +59,5 @@ class AdminBehaviour(HttpUser):
                 headers=headers
             )
             create_playlist_id.append(response.json()['playlist']['_id'])
+
+            self.clear()

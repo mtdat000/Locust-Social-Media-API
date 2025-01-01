@@ -20,6 +20,15 @@ class UserBehavior(HttpUser):
 
     @task
     class Flow(SequentialTaskSet):
+        def clear(self):
+            headers = {'Authorization': f'Bearer {self.accessToken}'}
+
+            self.client.delete(
+                f'/api/videos/user/watch-history',
+                headers=headers,
+                name='/cleanup'
+            )
+
         @task
         def login(self):
             response = self.client.post(
@@ -50,3 +59,5 @@ class UserBehavior(HttpUser):
                 },
                 headers=headers
             )
+
+            self.clear()

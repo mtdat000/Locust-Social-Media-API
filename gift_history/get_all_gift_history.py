@@ -1,19 +1,22 @@
-from locust import HttpUser, task
+from locust import HttpUser, task, SequentialTaskSet
 from common.utils import LOGIN_INFO
 
 class UserBehavior(HttpUser):
-    def on_start(self):
-        response = self.client.post(
-            "/api/auth/login", 
-            LOGIN_INFO['bao']
-        )
-        self.accessToken = response.json().get('accessToken')
-
     @task
-    def getAllGiftHistory(self):
-        headers = {'Authorization': f'Bearer {self.accessToken}'}
+    class Flow(SequentialTaskSet):
+        @task
+        def login(self):
+            response = self.client.post(
+                "/api/auth/login", 
+                LOGIN_INFO['admin']
+            )
+            self.accessToken = response.json().get('accessToken')
 
-        self.client.get(
-            '/api/gift-history/',
-            headers=headers
-        )
+        @task
+        def getAllGiftHistory(self):
+            headers = {'Authorization': f'Bearer {self.accessToken}'}
+
+            self.client.get(
+                '/api/gift-history/',
+                headers=headers
+            )

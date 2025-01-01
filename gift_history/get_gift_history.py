@@ -9,7 +9,7 @@ class UserBehavior(HttpUser):
         def login(self):
             response = self.client.post(
                 "/api/auth/login", 
-                LOGIN_INFO['bao']
+                LOGIN_INFO['admin']
             )
             self.accessToken = response.json().get('accessToken')
 
@@ -22,14 +22,14 @@ class UserBehavior(HttpUser):
                 headers=headers
             )
 
-            self.stream_id = random.choice(response.json()['giftHistory'])['_id']
+            self.giftHistory_id = random.choice(response.json()['giftHistory'])['_id']
 
         @task
         def getGiftHistoryWithId(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
             self.client.get(
-                f'/api/gift-history/{self.stream_id}',
+                f'/api/gift-history/{self.giftHistory_id}',
                 headers=headers,
                 name='/gift-history'
             )

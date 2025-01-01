@@ -44,7 +44,8 @@ class UserBehavior(HttpUser):
             id = create_playlist.pop()['_id']
             self.client.delete(
                 f'/api/my-playlists/{id}',
-                headers=headers
+                headers=headers,
+                name='/cleanup'
             )
             print(len(create_playlist))
 

@@ -42,6 +42,22 @@ class AdminBehaviour(HttpUser):
 
     @task
     class Flow(SequentialTaskSet):
+        def createGift(self):
+            headers = {'Authorization': f'Bearer {self.accessToken}'}
+            response = self.client.post(
+                '/api/gifts/',
+                {
+                    'name': 'Locust Test Gift ' + salt(),
+                    'valuePerUnit': 69
+                },
+                files={
+                    'giftCreateImg': ('tester_img.jpg', open('files/tester_img.jpg', 'rb'), 'image/jpeg'),
+                },
+                name='/re-supply',
+                headers=headers
+            )
+            create_gift.append(response.json()['gift'])
+
         @task
         def login(self):
             response = self.client.post(
@@ -73,20 +89,5 @@ class AdminBehaviour(HttpUser):
                 name='/deleted_gifts',
                 headers=headers
             )
-        
-        @task
-        def createGift(self):
-            headers = {'Authorization': f'Bearer {self.accessToken}'}
-            response = self.client.post(
-                '/api/gifts/',
-                {
-                    'name': 'Locust Test Gift ' + salt(),
-                    'valuePerUnit': 69
-                },
-                files={
-                    'giftCreateImg': ('tester_img.jpg', open('files/tester_img.jpg', 'rb'), 'image/jpeg'),
-                },
-                name='/re-supply',
-                headers=headers
-            )
-            create_gift.append(response.json()['gift'])
+
+            self.createGift()

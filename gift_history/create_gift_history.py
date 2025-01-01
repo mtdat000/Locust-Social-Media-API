@@ -17,18 +17,30 @@ class UserBehavior(HttpUser):
             id = create_gift_history_id.pop()
             self.client.delete(
                 f'/api/gift-history/{id}',
-                headers=headers
+                headers=headers,
+                name='/cleanup'
             )
             print(len(create_gift_history_id))
 
     @task
     class Flow(SequentialTaskSet):
+        def clear(self):
+            headers = {'Authorization': f'Bearer {self.accessToken}'}
+
+            while create_gift_history_id:
+                id = create_gift_history_id.pop()
+                self.client.delete(
+                    f'/api/gift-history/{id}',
+                    headers=headers,
+                    name='/cleanup'
+                )
+
         def getUser(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
             response = self.client.get(
                 f"/api/users/{self.userId}",
-                name='get-user',
+                name='/get-user',
                 headers=headers
             )
 
@@ -44,7 +56,7 @@ class UserBehavior(HttpUser):
                     'actionCurrencyType': 'ReceiveCoin',
                     'exchangeRate': 0
                 },
-                name='supply-coin',
+                name='/supply-coin',
                 headers=headers
             )
 
@@ -101,4 +113,7 @@ class UserBehavior(HttpUser):
                 headers=headers
             )
 
-            create_gift_history_id.append(response.json()['giftHistory']['_id'])
+            if response.status_code == 201:
+                create_gift_history_id.append(response.json()['giftHistory']['_id'])
+
+            self.clear()
