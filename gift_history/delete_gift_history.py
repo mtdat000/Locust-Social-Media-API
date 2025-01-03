@@ -67,12 +67,14 @@ class UserBehavior(HttpUser):
                         }
                     ]
                 },
-                headers=headers
+                headers=headers,
+                name='/re-supply',
             )
 
             #print(response.json())
 
-            create_gift_history.append(response.json()['giftHistory'])
+            if response.status_code == 201:
+                create_gift_history.append(response.json()['giftHistory'])
 
     def on_start(self):
         response = self.client.post(
@@ -100,6 +102,33 @@ class UserBehavior(HttpUser):
 
     @task
     class Flow(SequentialTaskSet):
+        def createGiftHistory(self):
+            self.getAllStream()
+            self.getAllGift()
+
+            headers = {'Authorization': f'Bearer {self.accessToken}'}
+
+            if(self.userInfo['wallet']['coin'] < self.gift['valuePerUnit']):
+                self.supplyCoin()
+
+            response = self.client.post(
+                '/api/gift-history/',
+                json={
+                    "streamId": self.stream['_id'],
+                    "gifts": [
+                        {
+                            "giftId": self.gift['_id'],
+                            "quantity": 1
+                        }
+                    ]
+                },
+                name='/re-supply',
+                headers=headers
+            )
+
+            if response.status_code == 201:
+                create_gift_history.append(response.json()['giftHistory'])
+
         def getUser(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
@@ -154,8 +183,6 @@ class UserBehavior(HttpUser):
             self.accessToken = response.json().get('accessToken')
             self.userId = response.json().get('userId')
             self.getUser()
-            self.getAllStream()
-            self.getAllGift()
 
         @task
         def getAllGiftHistory(self):
@@ -180,26 +207,4 @@ class UserBehavior(HttpUser):
                 name='/deleted-gift-history'
             )
 
-        @task
-        def createGiftHistory(self):
-            headers = {'Authorization': f'Bearer {self.accessToken}'}
-
-            if(self.userInfo['wallet']['coin'] < self.gift['valuePerUnit']):
-                self.supplyCoin()
-
-            response = self.client.post(
-                '/api/gift-history/',
-                json={
-                    "streamId": self.stream['_id'],
-                    "gifts": [
-                        {
-                            "giftId": self.gift['_id'],
-                            "quantity": 1
-                        }
-                    ]
-                },
-                name='/re-supply',
-                headers=headers
-            )
-
-            create_gift_history.append(response.json()['giftHistory'])
+            self.createGiftHistory()

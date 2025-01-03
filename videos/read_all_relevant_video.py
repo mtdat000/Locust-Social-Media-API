@@ -3,14 +3,6 @@ from common.utils import salt, LOGIN_INFO
 import random
 
 class UserBehavior(HttpUser):
-    def on_stop(self):
-        response = self.client.post(
-            "/api/auth/login",
-            LOGIN_INFO['bao']
-        )
-        accessToken = response.json().get('accessToken')
-        headers = {'Authorization': f'Bearer {accessToken}'}
-
     @task
     class Flow(SequentialTaskSet):
         @task
@@ -37,11 +29,12 @@ class UserBehavior(HttpUser):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
             self.client.get(
-                '/api/videos/',
-                {
-                    'page': None,
-                    'size': None,
+                '/api/videos/relevant',
+                params={
+                    'page': 1,
+                    'size': 100,
                     'categoryIds': self.category_id
                 },
-                headers=headers
+                headers=headers,
+                name='/relevant-videos'
             )

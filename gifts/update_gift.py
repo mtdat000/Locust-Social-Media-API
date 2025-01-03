@@ -36,7 +36,7 @@ class AdminBehaviour(HttpUser):
             id = create_gift.pop()['_id']
             self.client.delete(
                 f'/api/gifts/{id}',
-                headers=headers
+                headers=headers,
             )
             print(len(create_gift))
 

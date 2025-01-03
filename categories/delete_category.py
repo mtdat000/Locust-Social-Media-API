@@ -39,6 +39,19 @@ class AdminBehaviour(HttpUser):
 
     @task
     class Flow(SequentialTaskSet):
+        def createCategory(self):
+            headers = {'Authorization': f'Bearer {self.accessToken}'}
+            response = self.client.post(
+                '/api/categories',
+                {
+                    'name': 'Locust Test Category ' + salt(),
+                    'categoryUrl': ('tester_img.jpg', open('files/tester_img.jpg', 'rb'), 'image/jpeg')
+                },
+                name='/re-supply',
+                headers=headers
+            )
+            create_category.append(response.json()['category'])
+
         @task
         def login(self):
             response = self.client.post(
@@ -70,17 +83,5 @@ class AdminBehaviour(HttpUser):
                 name='/deleted_categories',
                 headers=headers
             )
-        
-        @task
-        def createCategory(self):
-            headers = {'Authorization': f'Bearer {self.accessToken}'}
-            response = self.client.post(
-                '/api/categories',
-                {
-                    'name': 'Locust Test Category ' + salt(),
-                    'categoryUrl': ('tester_img.jpg', open('files/tester_img.jpg', 'rb'), 'image/jpeg')
-                },
-                name='/re-supply',
-                headers=headers
-            )
-            create_category.append(response.json()['category'])
+
+            self.createCategory()

@@ -3,14 +3,6 @@ from common.utils import salt, LOGIN_INFO
 import random
 
 class UserBehavior(HttpUser):
-    def on_stop(self):
-        response = self.client.post(
-            "/api/auth/login",
-            LOGIN_INFO['bao']
-        )
-        accessToken = response.json().get('accessToken')
-        headers = {'Authorization': f'Bearer {accessToken}'}
-
     @task
     class Flow(SequentialTaskSet):
         @task
@@ -27,9 +19,12 @@ class UserBehavior(HttpUser):
 
             response = self.client.get(
                 '/api/videos/',
+                params={
+                    'enumMode': 'public'
+                },
                 headers=headers
             )
-
+            
             self.video_id = random.choice(response.json()['videos'])['_id']
 
         @task
@@ -38,5 +33,6 @@ class UserBehavior(HttpUser):
 
             self.client.get(
                 f'/api/videos/{self.video_id}',
-                headers=headers
+                headers=headers,
+                name='/videos'
             )
