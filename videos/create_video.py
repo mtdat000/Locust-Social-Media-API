@@ -17,7 +17,8 @@ class UserBehavior(HttpUser):
             id = create_video_id.pop()
             self.client.delete(
                 f'/api/videos/{id}',
-                headers=headers
+                headers=headers,
+                name='/cleanup'
             )
             print(len(create_video_id))
 

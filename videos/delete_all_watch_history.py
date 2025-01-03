@@ -76,6 +76,10 @@ class UserBehavior(HttpUser):
             )
             create_watch_history.append(response.json()['historyRecord'])
 
+        def createWatchHistoryList(self):
+            for i in range(random.randint(2, 10)):
+                self.createWatchHistory()
+
         @task
         def login(self):
             response = self.client.post(
@@ -85,19 +89,6 @@ class UserBehavior(HttpUser):
             self.accessToken = response.json().get('accessToken')
             
         @task
-        def getWatchHistory(self):
-            headers = {'Authorization': f'Bearer {self.accessToken}'}
-
-            self.client.get(
-                '/api/videos/user/watch-history',
-                headers=headers
-            )
-            
-            removed_watch_history = random.choice(create_watch_history)
-            self.watch_history_id = removed_watch_history['_id']
-            create_watch_history.remove(removed_watch_history)
-
-        @task
         def deleteAllWatchHistory(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
@@ -106,7 +97,4 @@ class UserBehavior(HttpUser):
                 headers=headers
             )
 
-        @task
-        def createWatchHistoryList(self):
-            for i in range(random.randint(2, 50)):
-                self.createWatchHistory()
+            self.createWatchHistoryList()

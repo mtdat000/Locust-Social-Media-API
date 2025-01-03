@@ -1,6 +1,5 @@
-from locust import HttpUser, TaskSet, SequentialTaskSet, task
-from common.utils import salt, LOGIN_INFO
-import random
+from locust import HttpUser, task, SequentialTaskSet
+from common.utils import LOGIN_INFO
 
 class UserBehavior(HttpUser):
     @task
@@ -12,12 +11,12 @@ class UserBehavior(HttpUser):
                 LOGIN_INFO['bao']
             )
             self.accessToken = response.json().get('accessToken')
-            
+
         @task
-        def getAllVideo(self):
+        def getAllReceipts(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
             self.client.get(
-                '/api/videos/',
+                '/api/receipts',
                 headers=headers
             )
