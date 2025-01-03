@@ -34,7 +34,7 @@ class AdminBehaviour(HttpUser):
         )
         self.accessToken = response.json().get('accessToken')
 
-        for i in range(25):
+        for i in range(40):
             self.createMemberpack()
 
     def on_stop(self):
