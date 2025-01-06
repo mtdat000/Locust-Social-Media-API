@@ -9,7 +9,7 @@ class AdminBehaviour(HttpUser):
         headers = {'Authorization': f'Bearer {self.accessToken}'}
         response = self.client.post(
             '/api/advertisement-packages/',
-            {
+            json={
                 "coin": random.randint(1000, 20000),
                 "dateUnit": random.choice(["DAY", "MONTH", "YEAR"]),
                 "numberOfDateUnit": random.randint(1, 30)
@@ -65,7 +65,7 @@ class AdminBehaviour(HttpUser):
 
             self.client.put(
                 f'/api/advertisement-packages/{self.advertisement_package_id}',
-                {
+                json={
                     "coin": random.randint(1000, 20000),
                     "dateUnit": random.choice(["DAY", "MONTH", "YEAR"]),
                     "numberOfDateUnit": random.randint(1, 30)
