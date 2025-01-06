@@ -41,15 +41,24 @@ class AdminBehaviour(HttpUser):
         def createAdvertisementPackage(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
+            coin = random.randint(1000, 20000)
+            date = random.choice(['DAY', 'MONTH', 'YEAR'])
+            numDate = random.randint(1, 30)
+
             response = self.client.post(
                 '/api/advertisement-packages/',
                 {
-                    "coin": random.randint(1000, 20000),
-                    "dateUnit": random.choice(["DAY", "MONTH", "YEAR"]),
-                    "numberOfDateUnit": random.randint(1, 30)
+                    'coin': coin,
+                    'dateUnit': date,
+                    'numberOfDateUnit': numDate
                 },
                 headers=headers
             )
-            create_advertisement_package_id.append(response.json()['gift']['_id'])
+
+            print(coin)
+            print(str(date))
+            print(numDate)
+            print(response.json())
+            create_advertisement_package_id.append(response.json()['packages']['_id'])
 
             self.clear()

@@ -9,7 +9,7 @@ class UserBehavior(HttpUser):
         def login(self):
             response = self.client.post(
                 "/api/auth/login", 
-                LOGIN_INFO['bao']
+                LOGIN_INFO['admin']
             )
             self.accessToken = response.json().get('accessToken')
 
