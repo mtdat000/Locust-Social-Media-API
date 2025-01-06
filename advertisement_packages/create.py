@@ -6,7 +6,13 @@ create_advertisement_package_id = []
 
 class AdminBehaviour(HttpUser):
     def on_stop(self):
-        headers = {'Authorization': f'Bearer {self.accessToken}'}
+        response = self.client.post(
+            "/api/auth/login",
+            LOGIN_INFO['admin']
+        )
+        accessToken = response.json().get('accessToken')
+
+        headers = {'Authorization': f'Bearer {accessToken}'}
 
         while create_advertisement_package_id:
             id = create_advertisement_package_id.pop()
@@ -42,23 +48,25 @@ class AdminBehaviour(HttpUser):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
             coin = random.randint(1000, 20000)
-            date = random.choice(['DAY', 'MONTH', 'YEAR'])
-            numDate = random.randint(1, 30)
+            # dateUnit = random.choice(['DAY', 'MONTH', 'YEAR'])
+            # numberOfDateUnit = random.randint(1, 30)
+
+            print('isNan', coin == None)
+            print('type', type(coin))
+            print('is positive', coin > 0)
+            print(type(coin) == type(1000))
 
             response = self.client.post(
-                '/api/advertisement-packages/',
-                {
-                    'coin': coin,
-                    'dateUnit': date,
-                    'numberOfDateUnit': numDate
+                "/api/advertisement-packages/",
+                json={
+                    "coin": 1000,
+                    "dateUnit": "MONTH",
+                    "numberOfDateUnit": 30
                 },
                 headers=headers
             )
-
-            print(coin)
-            print(str(date))
-            print(numDate)
             print(response.json())
+
             create_advertisement_package_id.append(response.json()['packages']['_id'])
 
             self.clear()
