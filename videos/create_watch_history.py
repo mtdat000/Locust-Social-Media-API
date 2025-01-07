@@ -13,7 +13,8 @@ class UserBehavior(HttpUser):
 
         self.client.delete(
             f'/api/videos/user/watch-history',
-            headers=headers
+            headers=headers,
+            name='/cleanup'
         )
 
         print('DONE')
@@ -43,6 +44,9 @@ class UserBehavior(HttpUser):
 
             response = self.client.get(
                 '/api/videos/',
+                params={
+                    'enumMode': 'public'
+                },
                 headers=headers
             )
 

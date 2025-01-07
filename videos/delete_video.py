@@ -39,12 +39,26 @@ class UserBehavior(HttpUser):
             id = create_video.pop()['_id']
             self.client.delete(
                 f'/api/videos/{id}',
-                headers=headers
+                headers=headers,
+                name='/cleanup'
             )
             print(len(create_video))
         
     @task
     class Flow(SequentialTaskSet):
+        def createVideo(self):
+            headers = {'Authorization': f'Bearer {self.accessToken}'}
+
+            response = self.client.post(
+                '/api/videos/',
+                files={
+                    'video': ('tester_video.mp4', open('files/tester_video.mp4', 'rb'), 'video/mp4')
+                },
+                headers=headers,
+                name='/re-supply'
+            )
+            create_video.append(response.json()['video'])
+
         @task
         def login(self):
             response = self.client.post(
@@ -76,15 +90,4 @@ class UserBehavior(HttpUser):
                 name='/deleted-videos'
             )
 
-        @task
-        def createVideo(self):
-            headers = {'Authorization': f'Bearer {self.accessToken}'}
-
-            response = self.client.post(
-                '/api/videos/',
-                files={
-                    'video': ('tester_video.mp4', open('files/tester_video.mp4', 'rb'), 'video/mp4')
-                },
-                headers=headers
-            )
-            create_video.append(response.json()['video'])
+            self.createVideo()

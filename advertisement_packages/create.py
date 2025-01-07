@@ -1,36 +1,36 @@
-from locust import HttpUser, TaskSet, SequentialTaskSet, task
+from locust import HttpUser, task, SequentialTaskSet
 from common.utils import salt, LOGIN_INFO
 import random
 
-create_video_id = []
+create_advertisement_package_id = []
 
-class UserBehavior(HttpUser):
+class AdminBehaviour(HttpUser):
     def on_stop(self):
         response = self.client.post(
             "/api/auth/login",
-            LOGIN_INFO['bao']
+            LOGIN_INFO['admin']
         )
         accessToken = response.json().get('accessToken')
+
         headers = {'Authorization': f'Bearer {accessToken}'}
 
-        while create_video_id:
-            id = create_video_id.pop()
+        while create_advertisement_package_id:
+            id = create_advertisement_package_id.pop()
             self.client.delete(
-                f'/api/videos/{id}',
-                headers=headers,
-                name='/cleanup'
+                f'/api/advertisement-packages/{id}',
+                headers=headers
             )
-            print(len(create_video_id))
+            print(len(create_advertisement_package_id))
 
     @task
     class Flow(SequentialTaskSet):
         def clear(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
-            while create_video_id:
-                id = create_video_id.pop()
+            while create_advertisement_package_id:
+                id = create_advertisement_package_id.pop()
                 self.client.delete(
-                    f'/api/videos/{id}',
+                    f'/api/advertisement-packages/{id}',
                     headers=headers,
                     name='/cleanup'
                 )
@@ -39,21 +39,24 @@ class UserBehavior(HttpUser):
         def login(self):
             response = self.client.post(
                 "/api/auth/login", 
-                LOGIN_INFO['bao']
+                LOGIN_INFO['admin']
             )
             self.accessToken = response.json().get('accessToken')
 
         @task
-        def createVideo(self):
+        def createAdvertisementPackage(self):
             headers = {'Authorization': f'Bearer {self.accessToken}'}
 
             response = self.client.post(
-                '/api/videos/',
-                files={
-                    'video': ('tester_video.mp4', open('files/tester_video.mp4', 'rb'), 'video/mp4')
+                "/api/advertisement-packages/",
+                json={
+                    "coin": random.randint(1000, 20000),
+                    "dateUnit": random.choice(['DAY', 'MONTH', 'YEAR']),
+                    "numberOfDateUnit": random.randint(1, 30)
                 },
                 headers=headers
             )
-            create_video_id.append(response.json()['video']['_id'])
+
+            create_advertisement_package_id.append(response.json()['packages']['_id'])
 
             self.clear()

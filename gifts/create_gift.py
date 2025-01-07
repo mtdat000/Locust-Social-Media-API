@@ -1,11 +1,18 @@
 from locust import HttpUser, task, SequentialTaskSet
 from common.utils import salt, LOGIN_INFO
+import random
 
 create_gift_id = []
 
 class AdminBehaviour(HttpUser):
     def on_stop(self):
-        headers = {'Authorization': f'Bearer {self.accessToken}'}
+        response = self.client.post(
+            "/api/auth/login",
+            LOGIN_INFO['admin']
+        )
+        accessToken = response.json().get('accessToken')
+
+        headers = {'Authorization': f'Bearer {accessToken}'}
 
         while create_gift_id:
             id = create_gift_id.pop()
@@ -44,7 +51,7 @@ class AdminBehaviour(HttpUser):
                 '/api/gifts/',
                 {
                     'name': 'Locust Test Gift ' + salt(),
-                    'valuePerUnit': 69
+                    'valuePerUnit': random.randint(50, 1000)
                 },
                 files={
                     'giftCreateImg': ('tester_img.jpg', open('files/tester_img.jpg', 'rb'), 'image/jpeg'),
