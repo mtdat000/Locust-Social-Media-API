@@ -3,29 +3,25 @@ from common.utils import salt, LOGIN_INFO, randomNumber, randomDateUnit
 
 class AdminBehaviour(HttpUser):
 
-    memberpack_id = []
-    accessToken = ""
+    advertisement_id = []
 
-    def createMemberpack(self):
+    def createAdvertisement(self):
         headers = {
             'Authorization': f'Bearer {self.accessToken}',
             'content-type': 'application/json'
             }
         
         params= {
-                "name": "Locust Test Memberpack " + salt(),
-                "description": "Memberpack descripttion "+ salt(),
-                "price": randomNumber(),
-                "durationUnit": randomDateUnit(),
-                "durationNumber": randomNumber()
-                }
+            "videoId": "6768aeddf64923fbea9aecd6",
+            "packageId": "6715fbd498671ce393dbc4ff"
+            }
 
         response = self.client.post(
-            '/api/member-pack/',
+            '/api/advertisements/',
             json=params,
             headers=headers
         )
-        self.memberpack_id.append(response.json()['memberPack']['_id'])
+        self.advertisement_id.append(response.json()['data']['_id'])
 
     def on_start(self):
         response = self.client.post(
@@ -34,30 +30,30 @@ class AdminBehaviour(HttpUser):
         )
         self.accessToken = response.json().get('accessToken')
 
-        for i in range(40):
-            self.createMemberpack()
+        for i in range(30):
+            self.createAdvertisement()
 
     def on_stop(self):
         headers = {'Authorization': f'Bearer {self.accessToken}'}
 
-        while self.memberpack_id:
-            id = self.memberpack_id.pop()
+        while self.advertisement_id:
+            id = self.advertisement_id.pop()
             self.client.delete(
-                f'/api/member-pack/{id}',
+                f'/api/advertisements/{id}',
                 headers=headers
             )
-            print(len(self.memberpack_id))
+            print(len(self.advertisement_id))
     
     @task
-    def deleteMemberpack(self):
+    def deleteAdvertisement(self):
         headers = {'Authorization': f'Bearer {self.accessToken}'}
         
-        if self.memberpack_id:
-            id = self.memberpack_id.pop()
+        if self.advertisement_id:
+            id = self.advertisement_id.pop()
             self.client.delete(
-                f'/api/member-pack/{id}',
+                f'/api/advertisements/{id}',
                 headers=headers
             )
-            print(len(self.memberpack_id))
+            print(len(self.advertisement_id))
         else:
             self.environment.runner.quit()

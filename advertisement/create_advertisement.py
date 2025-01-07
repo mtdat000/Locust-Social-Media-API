@@ -1,9 +1,9 @@
 from locust import HttpUser, task
-from common.utils import salt, LOGIN_INFO, randomNumber, randomDateUnit
+from common.utils import LOGIN_INFO
 
 class AdminBehaviour(HttpUser):
 
-    create_memberpack_id = []
+    create_advertisement = []
 
     def on_start(self):
         response = self.client.post(
@@ -15,34 +15,31 @@ class AdminBehaviour(HttpUser):
     def on_stop(self):
         headers = {'Authorization': f'Bearer {self.accessToken}'}
 
-        print(len(self.create_memberpack_id))
+        print(len(self.create_advertisement))
 
-        for id in self.create_memberpack_id:
+        for id in self.create_advertisement:
             self.client.delete(
-                f'/api/member-pack/{id}',
+                f'/api/advertisements/{id}',
                 headers=headers
             )
-            print(id)
+            # print(id)
     
     @task
-    def createMemberpack(self):
+    def createAdvertisement(self):
         headers = {
             'Authorization': f'Bearer {self.accessToken}',
             'content-type': 'application/json'
             }
 
         params= {
-            "name": "Locust Test Memberpack " + salt(),
-            "description": "Memberpack descripttion "+ salt(),
-            "price": randomNumber(),
-            "durationUnit": randomDateUnit(),
-            "durationNumber": randomNumber()
+                "videoId": "6768aeddf64923fbea9aecd6",
+                "packageId": "6715fbd498671ce393dbc4ff"
             }
 
         response = self.client.post(
-            '/api/member-pack/',
+            '/api/advertisements/',
             json=params,
             headers=headers
         )
         print(response.json())
-        self.create_memberpack_id.append(response.json()['memberPack']['_id'])
+        self.create_advertisement.append(response.json()['data']['_id'])
