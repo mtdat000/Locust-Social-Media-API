@@ -1,13 +1,15 @@
-from locust import HttpUser, task
-from common.utils import salt, LOGIN_INFO, randomNumber, randomDateUnit
+from locust import HttpUser, task, SequentialTaskSet
+from common.utils import LOGIN_INFO
+import random
+
+created_advertisement_id = []
+accessToken = ""
 
 class AdminBehaviour(HttpUser):
 
-    advertisement_id = []
-
     def createAdvertisement(self):
         headers = {
-            'Authorization': f'Bearer {self.accessToken}',
+            'Authorization': f'Bearer {accessToken}',
             'content-type': 'application/json'
             }
         
@@ -21,39 +23,69 @@ class AdminBehaviour(HttpUser):
             json=params,
             headers=headers
         )
-        self.advertisement_id.append(response.json()['data']['_id'])
+        created_advertisement_id.append(response.json()['data']['_id'])
 
     def on_start(self):
         response = self.client.post(
             "/api/auth/login", 
             LOGIN_INFO['admin']
         )
-        self.accessToken = response.json().get('accessToken')
+        global accessToken
+        accessToken = response.json().get('accessToken')
 
-        for i in range(30):
+        for i in range(2):
             self.createAdvertisement()
 
     def on_stop(self):
-        headers = {'Authorization': f'Bearer {self.accessToken}'}
+        headers = {'Authorization': f'Bearer {accessToken}'}
 
-        while self.advertisement_id:
-            id = self.advertisement_id.pop()
+        while created_advertisement_id:
+            id = created_advertisement_id.pop()
             self.client.delete(
                 f'/api/advertisements/{id}',
                 headers=headers
             )
-            print(len(self.advertisement_id))
+            print(len(created_advertisement_id))
     
     @task
-    def deleteAdvertisement(self):
-        headers = {'Authorization': f'Bearer {self.accessToken}'}
+    class Flow(SequentialTaskSet):
+        def createAdvertisement(self):
+            headers = {
+            'Authorization': f'Bearer {accessToken}',
+            'content-type': 'application/json'
+            }
         
-        if self.advertisement_id:
-            id = self.advertisement_id.pop()
-            self.client.delete(
-                f'/api/advertisements/{id}',
+            params= {
+                "videoId": "6768aeddf64923fbea9aecd6",
+                "packageId": "6715fbd498671ce393dbc4ff"
+                }
+
+            response = self.client.post(
+                '/api/advertisements/',
+                json=params,
                 headers=headers
             )
-            print(len(self.advertisement_id))
-        else:
-            self.environment.runner.quit()
+            created_advertisement_id.append(response.json()['data']['_id'])
+
+        @task
+        def getAllAdvertisement(self):
+            headers = {'Authorization': f'Bearer {accessToken}'}
+
+            response = self.client.get(
+                '/api/advertisements/',
+                headers=headers
+            )
+
+            self.advertisement_id = random.choice(list(map(lambda m: m['_id'], response.json()['data'])))
+            created_advertisement_id.remove(self.advertisement_id)
+    
+        @task
+        def deleteAdvertisement(self):
+            headers = {'Authorization': f'Bearer {accessToken}'}
+            
+            self.client.delete(
+                f'/api/advertisements/{self.advertisement_id}',
+                headers=headers
+            )
+
+            self.createAdvertisement()

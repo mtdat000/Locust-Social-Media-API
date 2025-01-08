@@ -19,16 +19,16 @@ class AdminBehavior(HttpUser):
             '/api/advertisements/',
             headers=headers
         )
-        self.advertisement_id= list(map(lambda m: m['_id'], response.json()['data']))
+        self.advertisement_id= random.choice(list(map(lambda m: m['_id'], response.json()['data'])))
         print(self.advertisement_id)
 
     @task
     def getAdvertisement(self):
         headers = {'Authorization': f'Bearer {self.accessToken}'}
-        id = random.choice(self.advertisement_id)
+        # id = random.choice(self.advertisement_id)
 
         response= self.client.get(
-            f'/api/advertisements/{id}',
+            f'/api/advertisements/{self.advertisement_id}',
             headers=headers
         )
-        print(response.json())
+        # print(response.json())
