@@ -5,7 +5,7 @@ import random
 create_member_pack = []
 
 class UserBehavior(HttpUser):
-    def createAdvertisementPackage(self):
+    def createMemberpack(self):
         headers = {'Authorization': f'Bearer {self.accessToken}'}
 
         member_pack_identifier = "Locust Test Member Pack " + salt()
@@ -32,14 +32,14 @@ class UserBehavior(HttpUser):
         self.accessToken = response.json().get('accessToken')
 
         for i in range(5):
-            self.createAdvertisementPackage()
+            self.createMemberpack()
 
     def on_stop(self):
         headers = {'Authorization': f'Bearer {self.accessToken}'}
         while create_member_pack:
             id = create_member_pack.pop()['_id']
             self.client.delete(
-                f'/api/advertisement-packages/{id}',
+                f'/api/member-pack/{id}',
                 headers=headers,
             )
             print(len(create_member_pack))
